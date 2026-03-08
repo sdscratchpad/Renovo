@@ -8,6 +8,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { LuZap, LuCheck, LuLoader } from '../icons';
 import { injectFault } from '../api/client';
+import { useDrawer } from '../context/DrawerContext';
 import styles from './FaultDial.module.css';
 
 interface Scenario {
@@ -32,6 +33,8 @@ const FaultDial: React.FC = () => {
     Object.fromEntries(SCENARIOS.map(s => [s.id, 'idle']))
   );
   const containerRef = useRef<HTMLDivElement>(null);
+  const { drawerIncidentId } = useDrawer();
+  const drawerOpen = drawerIncidentId !== null;
 
   // Close on outside click
   useEffect(() => {
@@ -66,7 +69,7 @@ const FaultDial: React.FC = () => {
   };
 
   return (
-    <div className={styles.dial} ref={containerRef}>
+    <div className={styles.dial} ref={containerRef} style={{ right: drawerOpen ? 'calc(520px + 32px)' : '32px' }}>
       {/* Scenario arms — shown when open */}
       {SCENARIOS.map((scenario, i) => {
         const state = states[scenario.id];

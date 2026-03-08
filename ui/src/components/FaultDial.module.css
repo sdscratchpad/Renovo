@@ -10,6 +10,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 0;
+  transition: right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── Main FAB row (label + button) ── */
