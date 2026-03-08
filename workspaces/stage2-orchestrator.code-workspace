@@ -1,0 +1,17 @@
+{
+  "folders": [
+    { "name": "ravi-poc (root)", "path": ".." },
+    { "name": "orchestrator", "path": "../services/orchestrator" }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "go.testTimeout": "30s"
+  },
+  "extensions": {
+    "recommendations": [
+      "golang.go",
+      "github.copilot",
+      "github.copilot-chat"
+    ]
+  }
+}

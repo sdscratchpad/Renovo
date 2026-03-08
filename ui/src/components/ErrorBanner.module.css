@@ -1,0 +1,42 @@
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: rgba(247,118,142,0.08);
+  border: 1px solid rgba(247,118,142,0.25);
+  border-left: 3px solid #f7768e;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.875rem;
+  color: #c79ca8;
+}
+
+.icon {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  color: #f7768e;
+  line-height: 1.5;
+}
+
+.message {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #f7768e;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0 0.25rem;
+  flex-shrink: 0;
+  opacity: 0.6;
+  margin-top: 1px;
+}
+
+.dismiss:hover {
+  opacity: 1;
+}

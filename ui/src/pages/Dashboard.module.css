@@ -1,0 +1,390 @@
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.pageHeader {
+  margin-bottom: 28px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #c0caf5;
+  margin: 0 0 6px;
+}
+
+.subheading {
+  font-size: 13px;
+  color: #565f89;
+  margin: 0;
+}
+
+.section {
+  margin-bottom: 40px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #565f89;
+  border-bottom: 1px solid #1e2030;
+  padding-bottom: 10px;
+  margin: 0 0 16px;
+}
+
+.refreshNote {
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #414868;
+  margin-left: 4px;
+}
+
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #1e2030;
+  padding-bottom: 10px;
+  margin: 0 0 16px;
+}
+
+.sectionTitleRow .sectionTitle {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin: 0;
+}
+
+/* Tab bar */
+.tabBar {
+  display: flex;
+  gap: 4px;
+  background: #13131f;
+  border: 1px solid #1e2030;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.tab {
+  padding: 5px 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #565f89;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  white-space: nowrap;
+}
+
+.tab:hover {
+  background: rgba(122, 162, 247, 0.08);
+  color: #9aa5ce;
+}
+
+.tabActive {
+  background: rgba(122, 162, 247, 0.15);
+  color: #7aa2f7;
+}
+
+/* Health grid */
+.healthGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 12px;
+}
+
+.healthCard {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #1e2030;
+  background-color: #13131f;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9aa5ce;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+  cursor: default;
+}
+
+.healthCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.serverIcon {
+  color: #414868;
+  flex-shrink: 0;
+}
+
+.healthDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.healthOk .healthDot { background-color: #9ece6a; }
+.severityCritical .healthDot { background-color: #f7768e; }
+.severityHigh .healthDot { background-color: #ff9e64; }
+.severityMedium .healthDot { background-color: #e0af68; }
+.severityLow .healthDot { background-color: #7dcfff; }
+
+.healthOk { border-color: #1e2030; }
+.severityCritical { border-color: #f7768e44; background-color: #f7768e0d; }
+.severityHigh { border-color: #ff9e6444; background-color: #ff9e640d; }
+.severityMedium { border-color: #e0af6844; background-color: #e0af680d; }
+.severityLow { border-color: #7dcfff44; background-color: #7dcfff0d; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .severityCritical { animation: glow-pulse-red 2.5s ease-in-out infinite; }
+  .severityHigh { animation: glow-pulse-yellow 2.5s ease-in-out infinite; }
+
+  @keyframes glow-pulse-red {
+    0%, 100% { box-shadow: var(--shadow-sm); }
+    50%       { box-shadow: var(--shadow-sm), var(--glow-red); }
+  }
+
+  @keyframes glow-pulse-yellow {
+    0%, 100% { box-shadow: var(--shadow-sm); }
+    50%       { box-shadow: var(--shadow-sm), var(--glow-yellow); }
+  }
+}
+
+.healthName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.healthBadge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: rgba(0,0,0,0.3);
+  flex-shrink: 0;
+}
+
+/* KPI grid */
+.kpiGrid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.kpiCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #1e2030;
+  border-left: 3px solid #7aa2f7;
+  background-color: #13131f;
+  box-shadow: var(--shadow-sm);
+  flex: 1;
+  min-width: 160px;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.kpiCard:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md), var(--glow-blue);
+}
+
+.kpiIcon {
+  color: #7aa2f7;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.kpiText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.kpiValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: #7aa2f7;
+  line-height: 1;
+}
+
+.kpiLabel {
+  font-size: 11px;
+  color: #565f89;
+}
+
+/* Incidents table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #414868;
+  border-bottom: 1px solid #1e2030;
+}
+
+.table td {
+  padding: 12px 12px;
+  border-bottom: 1px solid #1a1b26;
+  color: #9aa5ce;
+  vertical-align: middle;
+}
+
+.table tbody tr {
+  transition: background-color var(--transition);
+}
+
+.table tbody tr:hover td {
+  background-color: #13131f;
+}
+
+.table tbody tr:hover td:first-child {
+  border-left: 3px solid #7aa2f7;
+  padding-left: 9px;
+}
+
+.monoCell {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 12px;
+  color: #4a5080;
+}
+
+.resultCell {
+  font-size: 13px;
+  color: #788099;
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.severityBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.severityCritical.severityBadge { background-color: #f7768e1a; color: #f7768e; }
+.severityHigh.severityBadge     { background-color: #ff9e641a; color: #ff9e64; }
+.severityMedium.severityBadge   { background-color: #e0af681a; color: #e0af68; }
+.severityLow.severityBadge      { background-color: #7dcfff1a; color: #7dcfff; }
+
+.detailLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #7aa2f7;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #2a2c42;
+  background: rgba(122,162,247,0.06);
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.detailLink:hover {
+  background: rgba(122,162,247,0.14);
+  border-color: #7aa2f7;
+  color: #a9c4fb;
+}
+
+.loadingText,
+.emptyText {
+  color: #565f89;
+  font-size: 14px;
+}
+
+.section {
+  margin-bottom: 40px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #565f89;
+  border-bottom: 1px solid #1e2030;
+  padding-bottom: 8px;
+  margin: 0 0 16px;
+}
+
+.refreshNote {
+  font-size: 12px;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #414868;
+  margin-left: 8px;
+}
+
+/* ---- Incident pipeline status badges ---- */
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.statusDetected         { background: rgba(86,95,137,0.20); color: #a9b1d6; }
+.statusAnalyzing        { background: rgba(122,162,247,0.18); color: #7aa2f7; }
+.statusAwaitingApproval { background: rgba(224,175,104,0.20); color: #e0af68; }
+.statusRemediating      { background: rgba(255,158,100,0.20); color: #ff9e64; }
+.statusResolved         { background: rgba(158,206,106,0.20); color: #9ece6a; }
+.statusFailed           { background: rgba(247,118,142,0.20); color: #f7768e; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .statusAnalyzing   { animation: status-pulse-blue   1.6s ease-in-out infinite; }
+  .statusRemediating { animation: status-pulse-orange  1.6s ease-in-out infinite; }
+
+  @keyframes status-pulse-blue {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.55; }
+  }
+  @keyframes status-pulse-orange {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.55; }
+  }
+}

@@ -1,0 +1,191 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: #c0caf5;
+  margin: 0 0 8px;
+}
+
+.intro {
+  font-size: 14px;
+  color: #565f89;
+  line-height: 1.6;
+  margin: 0 0 32px;
+  max-width: 640px;
+}
+
+/* Scenario grid */
+.scenarioGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background-color: #13131f;
+  border: 1px solid #1e2030;
+  border-radius: 12px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.sev_critical { border-left: 3px solid #f7768e; }
+.sev_critical:hover { box-shadow: var(--shadow-lg), var(--glow-red); }
+.sev_high     { border-left: 3px solid #ff9e64; }
+.sev_high:hover { box-shadow: var(--shadow-lg), var(--glow-yellow); }
+.sev_medium   { border-left: 3px solid #e0af68; }
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cardIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #c0caf5;
+  margin: 0;
+  flex: 1;
+}
+
+.severityBadge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.badge_critical { background-color: #f7768e22; color: #f7768e; }
+.badge_high     { background-color: #ff9e6422; color: #ff9e64; }
+.badge_medium   { background-color: #e0af6822; color: #e0af68; }
+
+.cardDesc {
+  font-size: 13px;
+  color: #7982a9;
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+.cardFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.injectBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background-color: #1e2030;
+  color: #7aa2f7;
+  border: 1px solid #2a2c42;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition);
+  width: 100%;
+  text-align: center;
+}
+
+.injectBtn:hover:not(:disabled) {
+  background-color: #252840;
+  border-color: #7aa2f7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(122,162,247,0.2);
+}
+
+.injectBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.injectBtnSuccess {
+  background-color: rgba(158,206,106,0.12);
+  border-color: #9ece6a;
+  color: #9ece6a;
+  animation: pop 0.25s ease;
+}
+
+.spinIcon {
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.04); }
+    100% { transform: scale(1); }
+  }
+}
+
+.successNote {
+  font-size: 12px;
+  color: #9ece6a;
+}
+
+.errorNote {
+  font-size: 12px;
+  color: #f7768e;
+}
+
+/* Warning box */
+.warningBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: #e0af6811;
+  border: 1px solid #e0af6833;
+  border-radius: 8px;
+  padding: 14px 18px;
+  max-width: 640px;
+}
+
+.warningIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.warningBox p {
+  font-size: 13px;
+  color: #9aa5ce;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.warningBox strong {
+  color: #e0af68;
+}

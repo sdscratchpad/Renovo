@@ -1,0 +1,20 @@
+BIN=fault-injector
+PORT?=8082
+
+.PHONY: build run up down test
+
+build:
+	go build -o bin/$(BIN) .
+
+run: build
+	PORT=$(PORT) ./bin/$(BIN)
+
+up: build
+	PORT=$(PORT) ./bin/$(BIN) &
+	@echo "✓ fault-injector up on :$(PORT)"
+
+down:
+	pkill -f bin/$(BIN) || true
+
+test:
+	go test ./...

@@ -1,0 +1,72 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #0f111a;
+  border-bottom: 1px solid #1e2030;
+  padding: 0 24px;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.brandName {
+  font-size: 17px;
+  font-weight: 700;
+  color: #7aa2f7;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+
+.brandSub {
+  font-size: 10px;
+  color: #565f89;
+  letter-spacing: 0.2px;
+  line-height: 1.1;
+}
+
+.links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 4px;
+}
+
+.link,
+.activeLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--transition), color var(--transition), box-shadow var(--transition);
+  color: #9aa5ce;
+}
+
+.link:hover {
+  background-color: #1a1c2e;
+  color: #c0caf5;
+}
+
+.activeLink {
+  background-color: rgba(122,162,247,0.1);
+  color: #7aa2f7;
+  box-shadow: inset 0 -2px 0 #7aa2f7;
+}

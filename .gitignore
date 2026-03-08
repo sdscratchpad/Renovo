@@ -1,0 +1,6 @@
+# Secrets and local config
+.env
+**/bin/
+**/data/
+**/node_modules/
+ui/build/

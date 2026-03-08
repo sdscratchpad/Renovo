@@ -1,0 +1,12 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: ravi-poc
+nodes:
+  - role: control-plane
+  - role: worker
+    extraPortMappings:
+      # sample-app NodePort -> host 8080
+      - containerPort: 30080
+        hostPort: 8080
+        protocol: TCP
+  - role: worker

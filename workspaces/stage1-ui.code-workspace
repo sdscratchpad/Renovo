@@ -1,0 +1,18 @@
+{
+  "folders": [
+    { "name": "ravi-poc (root)", "path": ".." },
+    { "name": "ui", "path": "../ui" }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "typescript.preferences.importModuleSpecifier": "relative"
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "github.copilot",
+      "github.copilot-chat"
+    ]
+  }
+}

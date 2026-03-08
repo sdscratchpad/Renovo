@@ -1,0 +1,60 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+}
+
+.detected {
+  background: rgba(122,162,247,0.12);
+  border-color: rgba(122,162,247,0.28);
+  color: #7aa2f7;
+}
+
+.diagnosing {
+  background: rgba(224,175,104,0.12);
+  border-color: rgba(224,175,104,0.28);
+  color: #e0af68;
+  animation: badge-pulse 1.8s ease-in-out infinite;
+}
+
+.remediating {
+  background: rgba(115,218,202,0.12);
+  border-color: rgba(115,218,202,0.28);
+  color: #73daca;
+  animation: badge-pulse 1.2s ease-in-out infinite;
+}
+
+.resolved {
+  background: rgba(158,206,106,0.12);
+  border-color: rgba(158,206,106,0.28);
+  color: #9ece6a;
+}
+
+.failed {
+  background: rgba(247,118,142,0.12);
+  border-color: rgba(247,118,142,0.28);
+  color: #f7768e;
+}
+
+.spinIcon {
+  animation: spin 1.4s linear infinite;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes badge-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+}

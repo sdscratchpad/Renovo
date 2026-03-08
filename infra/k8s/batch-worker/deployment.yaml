@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: batch-worker
+  namespace: workloads
+  labels:
+    app: batch-worker
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 240
+      template:
+        metadata:
+          labels:
+            app: batch-worker
+          annotations:
+            prometheus.io/scrape: "true"
+            prometheus.io/port: "8081"
+            prometheus.io/path: "/metrics"
+        spec:
+          serviceAccountName: batch-worker
+          restartPolicy: OnFailure
+          containers:
+            - name: batch-worker
+              image: batch-worker:latest
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: PORT
+                  value: "8081"
+              resources:
+                requests:
+                  cpu: "50m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "500m"
+                  memory: "128Mi"

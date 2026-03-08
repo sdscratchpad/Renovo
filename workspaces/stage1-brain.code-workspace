@@ -1,0 +1,19 @@
+{
+  "folders": [
+    { "name": "ravi-poc (root)", "path": ".." },
+    { "name": "diagnosis", "path": "../services/diagnosis" },
+    { "name": "event-store", "path": "../services/event-store" },
+    { "name": "contracts", "path": "../contracts" }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "go.testTimeout": "30s"
+  },
+  "extensions": {
+    "recommendations": [
+      "golang.go",
+      "github.copilot",
+      "github.copilot-chat"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "folders": [
+    { "name": "ravi-poc (root)", "path": ".." },
+    { "name": "infra", "path": "../infra" },
+    { "name": "telemetry", "path": "../telemetry" }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/bin": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "golang.go",
+      "github.copilot",
+      "github.copilot-chat"
+    ]
+  }
+}
