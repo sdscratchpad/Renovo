@@ -8,15 +8,19 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/ravi-poc/contracts"
 	diaginternal "github.com/ravi-poc/diagnosis/internal"
+	"github.com/ravi-poc/diagnosis/internal/detector"
 	"github.com/ravi-poc/diagnosis/internal/llm"
 )
 
@@ -39,6 +43,11 @@ func main() {
 	prometheusURL := os.Getenv("PROMETHEUS_URL")
 	if prometheusURL == "" {
 		prometheusURL = "http://localhost:9090"
+	}
+
+	sampleAppURL := os.Getenv("SAMPLE_APP_URL")
+	if sampleAppURL == "" {
+		sampleAppURL = "http://localhost:8080"
 	}
 
 	llmClient := llm.New(token)
@@ -93,9 +102,86 @@ func main() {
 		proxy(w, r, eventStoreURL+"/rca/"+id)
 	})
 
+	// Start background watcher: auto-diagnose new incidents from event-store.
+	startWatcher(eventStoreURL, analyzer)
+
+	// Start SRE golden signal detector: autonomously detect faults and create incidents.
+	det := detector.New(prometheusURL, eventStoreURL, sampleAppURL)
+	go det.Start(context.Background())
+
 	log.Printf("diagnosis service listening on :%s", port)
 	if err := http.ListenAndServe(":"+port, withCORS(mux)); err != nil {
 		log.Fatalf("diagnosis exited: %v", err)
+	}
+}
+
+// startWatcher polls the event-store for new incidents that have no pipeline status yet
+// (meaning the fault-injector created them but nobody kicked off analysis) and automatically
+// runs Analyze on each one. This closes the loop: inject → detect → AI diagnose → remediate.
+func startWatcher(eventStoreURL string, analyzer *diaginternal.Analyzer) {
+	log.Println("watcher: incident auto-trigger started (polling every 5s)")
+	go func() {
+		// Brief startup delay so event-store is fully up before first poll.
+		time.Sleep(3 * time.Second)
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		var inProgress sync.Map // keyed by incident ID
+		for range ticker.C {
+			processUnanalyzed(eventStoreURL, analyzer, &inProgress)
+		}
+	}()
+}
+
+// processUnanalyzed fetches all incidents, and for any that have no status record (never touched
+// by the diagnosis pipeline), kicks off an async Analyze call.
+func processUnanalyzed(eventStoreURL string, analyzer *diaginternal.Analyzer, inProgress *sync.Map) {
+	resp, err := http.Get(eventStoreURL + "/incidents")
+	if err != nil {
+		log.Printf("watcher: fetch incidents: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	var incidents []contracts.IncidentEvent
+	if err := json.NewDecoder(resp.Body).Decode(&incidents); err != nil {
+		log.Printf("watcher: decode incidents: %v", err)
+		return
+	}
+
+	for _, inc := range incidents {
+		// Skip if already being analyzed in this process.
+		if _, running := inProgress.Load(inc.ID); running {
+			continue
+		}
+
+		// Check pipeline status. The event-store returns "detected" (HTTP 200) as the
+		// default for incidents that have no status row — i.e. never been touched by
+		// the diagnosis pipeline. Only process those.
+		statResp, err := http.Get(eventStoreURL + "/status/" + inc.ID)
+		if err != nil {
+			log.Printf("watcher: check status %s: %v", inc.ID, err)
+			continue
+		}
+		var su contracts.IncidentStatusUpdate
+		decodeErr := json.NewDecoder(statResp.Body).Decode(&su)
+		statResp.Body.Close()
+		if decodeErr != nil || su.Status != contracts.StatusDetected {
+			// Has a real pipeline status beyond "detected" — skip.
+			continue
+		}
+
+		// Mark in-progress before spawning goroutine to prevent double-dispatch.
+		inProgress.Store(inc.ID, true)
+		go func(incident contracts.IncidentEvent) {
+			defer inProgress.Delete(incident.ID)
+			log.Printf("watcher: auto-diagnosing %s (scenario=%s service=%s)", incident.ID, incident.Scenario, incident.Service)
+			_, _, err := analyzer.Analyze(context.Background(), incident)
+			if err != nil {
+				log.Printf("watcher: analysis failed for %s: %v", incident.ID, err)
+			} else {
+				log.Printf("watcher: analysis complete for %s", incident.ID)
+			}
+		}(inc)
 	}
 }
 

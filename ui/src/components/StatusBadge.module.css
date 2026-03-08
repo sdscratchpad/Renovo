@@ -24,11 +24,24 @@
   animation: badge-pulse 1.8s ease-in-out infinite;
 }
 
+.awaiting_approval {
+  background: rgba(187,154,247,0.12);
+  border-color: rgba(187,154,247,0.28);
+  color: #bb9af7;
+}
+
 .remediating {
   background: rgba(115,218,202,0.12);
   border-color: rgba(115,218,202,0.28);
   color: #73daca;
   animation: badge-pulse 1.2s ease-in-out infinite;
+}
+
+.verifying {
+  background: rgba(65,166,246,0.12);
+  border-color: rgba(65,166,246,0.30);
+  color: #41a6f6;
+  animation: badge-pulse 1.6s ease-in-out infinite;
 }
 
 .resolved {
@@ -45,6 +58,10 @@
 
 .spinIcon {
   animation: spin 1.4s linear infinite;
+  flex-shrink: 0;
+}
+
+.pulseIcon {
   flex-shrink: 0;
 }
 

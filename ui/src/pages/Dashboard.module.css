@@ -198,22 +198,61 @@
   padding: 10px 16px;
   border-radius: 8px;
   border: 1px solid #1e2030;
-  border-left: 3px solid #7aa2f7;
   background-color: #13131f;
   box-shadow: var(--shadow-sm);
   flex: 1;
   min-width: 160px;
   transition: transform var(--transition), box-shadow var(--transition);
+  /* base — overridden per-card below */
+  border-left: 3px solid #7aa2f7;
 }
 
 .kpiCard:hover {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md), var(--glow-blue);
 }
 
+/* MTTD — blue */
+.kpiMttd {
+  border-left-color: #7aa2f7;
+}
+.kpiMttd:hover {
+  box-shadow: var(--shadow-md), 0 0 12px rgba(122,162,247,0.25);
+}
+.kpiMttd .kpiIcon { color: #7aa2f7; }
+.kpiMttd .kpiValue { color: #7aa2f7; }
+
+/* MTTR — purple/lavender */
+.kpiMttr {
+  border-left-color: #bb9af7;
+}
+.kpiMttr:hover {
+  box-shadow: var(--shadow-md), 0 0 12px rgba(187,154,247,0.25);
+}
+.kpiMttr .kpiIcon { color: #bb9af7; }
+.kpiMttr .kpiValue { color: #bb9af7; }
+
+/* Resolved Today — green */
+.kpiResolved {
+  border-left-color: #9ece6a;
+}
+.kpiResolved:hover {
+  box-shadow: var(--shadow-md), 0 0 12px rgba(158,206,106,0.25);
+}
+.kpiResolved .kpiIcon { color: #9ece6a; }
+.kpiResolved .kpiValue { color: #9ece6a; }
+
+/* Auto-Resolve Rate — orange/amber */
+.kpiAutoResolve {
+  border-left-color: #e0af68;
+}
+.kpiAutoResolve:hover {
+  box-shadow: var(--shadow-md), 0 0 12px rgba(224,175,104,0.25);
+}
+.kpiAutoResolve .kpiIcon { color: #e0af68; }
+.kpiAutoResolve .kpiValue { color: #e0af68; }
+
 .kpiIcon {
-  color: #7aa2f7;
-  opacity: 0.7;
+  opacity: 0.8;
   flex-shrink: 0;
 }
 
@@ -226,7 +265,6 @@
 .kpiValue {
   font-size: 18px;
   font-weight: 700;
-  color: #7aa2f7;
   line-height: 1;
 }
 
@@ -311,10 +349,12 @@
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
+  font-family: inherit;
   padding: 4px 10px;
   border-radius: 6px;
   border: 1px solid #2a2c42;
   background: rgba(122,162,247,0.06);
+  cursor: pointer;
   transition: background var(--transition), border-color var(--transition), color var(--transition);
 }
 

@@ -1,10 +1,17 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { LuLayoutDashboard, LuZap, LuClipboardList } from '../icons';
 import RenovoLogo from './RenovoLogo';
+import { useWS, WSStatus } from '../context/WSContext';
 import styles from './NavBar.module.css';
 
+const WS_LABELS: Record<WSStatus, string> = {
+  connecting:   'Connecting…',
+  connected:    'Live',
+  disconnected: 'Disconnected',
+};
+
 const NavBar: React.FC = () => {
+  const { status } = useWS();
+
   return (
     <nav className={styles.nav}>
       <div className={styles.brand}>
@@ -14,26 +21,10 @@ const NavBar: React.FC = () => {
           <span className={styles.brandSub}>AI Infrastructure Resilience</span>
         </div>
       </div>
-      <ul className={styles.links}>
-        <li>
-          <NavLink to="/" end className={({ isActive }) => isActive ? styles.activeLink : styles.link}>
-            <LuLayoutDashboard size={15} />
-            Dashboard
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/inject" className={({ isActive }) => isActive ? styles.activeLink : styles.link}>
-            <LuZap size={15} />
-            Fault Injector
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/audit" className={({ isActive }) => isActive ? styles.activeLink : styles.link}>
-            <LuClipboardList size={15} />
-            Audit Log
-          </NavLink>
-        </li>
-      </ul>
+      <div className={`${styles.wsIndicator} ${styles['ws_' + status]}`}>
+        <span className={styles.wsDot} />
+        <span className={styles.wsLabel}>{WS_LABELS[status]}</span>
+      </div>
     </nav>
   );
 };

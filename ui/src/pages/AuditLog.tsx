@@ -67,7 +67,7 @@ const AuditLog: React.FC = () => {
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.heading}><LuActivity size={22} /> Audit Log</h1>
+        <h1 className={styles.heading}><LuActivity size={22} /> Incident History</h1>
         <p className={styles.intro}>Chronological trail of all system and operator actions across every incident.</p>
       </div>
       {error && <ErrorBanner message={error} />}

@@ -68,6 +68,11 @@ func migrate(db *sql.DB) error {
 			status      TEXT NOT NULL,
 			updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
+		`CREATE TABLE IF NOT EXISTS llm_interactions (
+			incident_id TEXT PRIMARY KEY,
+			data        TEXT NOT NULL,
+			created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
 	}
 	for _, stmt := range stmts {
 		if _, err := db.Exec(stmt); err != nil {

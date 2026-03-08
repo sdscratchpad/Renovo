@@ -13,6 +13,8 @@ import {
   LuBot as _LuBot,
   LuBrainCircuit as _LuBrainCircuit,
   LuCheck as _LuCheck,
+  LuChevronDown as _LuChevronDown,
+  LuChevronRight as _LuChevronRight,
   LuCircleAlert as _LuCircleAlert,
   LuCircleCheck as _LuCircleCheck,
   LuCircleCheckBig as _LuCircleCheckBig,
@@ -25,11 +27,13 @@ import {
   LuPlay as _LuPlay,
   LuRefreshCw as _LuRefreshCw,
   LuRotateCcw as _LuRotateCcw,
+  LuScanSearch as _LuScanSearch,
   LuServer as _LuServer,
   LuShieldAlert as _LuShieldAlert,
   LuTimer as _LuTimer,
   LuTrendingUp as _LuTrendingUp,
   LuUser as _LuUser,
+  LuX as _LuX,
   LuZap as _LuZap,
 } from 'react-icons/lu';
 
@@ -47,6 +51,8 @@ export const LuArrowRight     = _LuArrowRight     as Icon;
 export const LuBot            = _LuBot            as Icon;
 export const LuBrainCircuit   = _LuBrainCircuit   as Icon;
 export const LuCheck          = _LuCheck          as Icon;
+export const LuChevronDown    = _LuChevronDown    as Icon;
+export const LuChevronRight   = _LuChevronRight   as Icon;
 export const LuCircleAlert    = _LuCircleAlert    as Icon;
 export const LuCircleCheck    = _LuCircleCheck    as Icon;
 export const LuCircleCheckBig = _LuCircleCheckBig as Icon;
@@ -59,9 +65,11 @@ export const LuLoader         = _LuLoader         as Icon;
 export const LuPlay           = _LuPlay           as Icon;
 export const LuRefreshCw      = _LuRefreshCw      as Icon;
 export const LuRotateCcw      = _LuRotateCcw      as Icon;
+export const LuScanSearch     = _LuScanSearch     as Icon;
 export const LuServer         = _LuServer         as Icon;
 export const LuShieldAlert    = _LuShieldAlert    as Icon;
 export const LuTimer          = _LuTimer          as Icon;
 export const LuTrendingUp     = _LuTrendingUp     as Icon;
 export const LuUser           = _LuUser           as Icon;
+export const LuX              = _LuX              as Icon;
 export const LuZap            = _LuZap            as Icon;

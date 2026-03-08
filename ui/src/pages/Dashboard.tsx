@@ -5,9 +5,12 @@ import {
   LuServer, LuArrowRight, LuActivity,
 } from '../icons';
 import { getIncidents, getKPIs, getRemediationResult, getIncidentStatus } from '../api/client';
+import { useWS } from '../context/WSContext';
+import { useDrawer } from '../context/DrawerContext';
 import { IncidentEvent, KPISummary, RemediationResult, IncidentStatusUpdate } from '../api/types';
 import Spinner from '../components/Spinner';
 import ErrorBanner from '../components/ErrorBanner';
+import FaultDial from '../components/FaultDial';
 import styles from './Dashboard.module.css';
 
 function severityClass(severity: string): string {
@@ -64,6 +67,7 @@ const Dashboard: React.FC = () => {
   const [incidentTab, setIncidentTab] = useState<'active' | 'resolved' | 'failed'>('active');
   const [remediationResults, setRemediationResults] = useState<Map<string, RemediationResult>>(new Map());
   const [incidentStatuses, setIncidentStatuses] = useState<Map<string, IncidentStatusUpdate>>(new Map());
+  const { openDrawer } = useDrawer();
 
   const fetchData = useCallback(async () => {
     try {
@@ -88,11 +92,19 @@ const Dashboard: React.FC = () => {
     }
   }, []);
 
+  // Initial load + 30 s fallback poll (catches any events missed by WS).
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 10_000);
+    const interval = setInterval(fetchData, 30_000);
     return () => clearInterval(interval);
   }, [fetchData]);
+
+  // Immediate refresh driven by WebSocket push events from the event-store.
+  const { lastEventAt } = useWS();
+  useEffect(() => {
+    if (lastEventAt === 0) return; // skip the initial value before first event
+    fetchData();
+  }, [lastEventAt, fetchData]);
 
   // Only incidents that are not yet resolved or failed affect the service health map.
   const affectedServices = new Set(
@@ -105,6 +117,7 @@ const Dashboard: React.FC = () => {
   );
 
   return (
+    <>
     <div className={styles.page}>
       <div className={styles.pageHeader}>
         <h1 className={styles.heading}><LuActivity size={22} /> Dashboard</h1>
@@ -159,28 +172,28 @@ const Dashboard: React.FC = () => {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>KPIs <span className={styles.refreshNote}>(refreshes every 10s)</span></h2>
         {kpis ? (          <div className={styles.kpiGrid}>
-            <div className={styles.kpiCard}>
+            <div className={`${styles.kpiCard} ${styles.kpiMttd}`}>
               <LuClock size={16} className={styles.kpiIcon} />
               <div className={styles.kpiText}>
                 <span className={styles.kpiValue}>{kpis.mttd_minutes.toFixed(1)} min</span>
                 <span className={styles.kpiLabel}>MTTD</span>
               </div>
             </div>
-            <div className={styles.kpiCard}>
+            <div className={`${styles.kpiCard} ${styles.kpiMttr}`}>
               <LuTimer size={16} className={styles.kpiIcon} />
               <div className={styles.kpiText}>
                 <span className={styles.kpiValue}>{kpis.mttr_minutes.toFixed(1)} min</span>
                 <span className={styles.kpiLabel}>MTTR</span>
               </div>
             </div>
-            <div className={styles.kpiCard}>
+            <div className={`${styles.kpiCard} ${styles.kpiResolved}`}>
               <LuCircleCheckBig size={16} className={styles.kpiIcon} />
               <div className={styles.kpiText}>
                 <span className={styles.kpiValue}>{kpis.resolved_today}</span>
                 <span className={styles.kpiLabel}>Resolved Today</span>
               </div>
             </div>
-            <div className={styles.kpiCard}>
+            <div className={`${styles.kpiCard} ${styles.kpiAutoResolve}`}>
               <LuTrendingUp size={16} className={styles.kpiIcon} />
               <div className={styles.kpiText}>
                 <span className={styles.kpiValue}>{kpis.auto_resolve_rate}%</span>
@@ -273,9 +286,12 @@ const Dashboard: React.FC = () => {
                           <td className={styles.resultCell}>{remediationResults.get(inc.id)?.message ?? '—'}</td>
                         )}
                         <td>
-                          <Link to={`/incidents/${inc.id}`} className={styles.detailLink}>
+                          <button
+                            className={styles.detailLink}
+                            onClick={() => openDrawer(inc.id)}
+                          >
                             View <LuArrowRight size={12} />
-                          </Link>
+                          </button>
                         </td>
                       </tr>
                       );
@@ -288,6 +304,8 @@ const Dashboard: React.FC = () => {
         })()}
       </section>
     </div>
+    <FaultDial />
+    </>
   );
 };
 

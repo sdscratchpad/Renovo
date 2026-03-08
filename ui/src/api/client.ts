@@ -1,7 +1,7 @@
 // client.ts — typed async fetch functions for all live service endpoints.
 // All inter-service calls go through apiFetch so errors surface uniformly.
 
-import { IncidentEvent, RCAPayload, RemediationRequest, RemediationResult, IncidentStatusUpdate, AuditEntry, KPISummary, KPISnapshot } from './types';
+import { IncidentEvent, RCAPayload, RemediationRequest, RemediationResult, IncidentStatusUpdate, AuditEntry, KPISummary, KPISnapshot, LLMInteraction } from './types';
 
 const EVENT_STORE   = 'http://localhost:8085';
 const DIAGNOSIS     = 'http://localhost:8083';
@@ -73,19 +73,17 @@ export async function getRemediation(incidentId: string): Promise<RemediationReq
   return list.length > 0 ? list[0] : null;
 }
 
-// PATCH /remediations/{id}/approve — triggers orchestrator to execute the runbook.
-// Returns the RemediationResult which includes success/failure and the outcome message.
-// The orchestrator returns HTTP 200 on success and HTTP 500 on runbook failure, both
-// with a RemediationResult body, so we parse both rather than letting apiFetch throw.
-export async function approveRemediation(remediationId: string): Promise<RemediationResult> {
+// PATCH /remediations/{id}/approve — triggers orchestrator to execute the runbook
+// asynchronously. The orchestrator immediately returns 202 Accepted once the
+// incident status is set to "remediating". The caller should poll
+// /remediation-results/{incidentId} to detect when the runbook finishes.
+export async function approveRemediation(remediationId: string): Promise<void> {
   const res = await fetch(`${ORCHESTRATOR}/remediations/${remediationId}/approve`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ approval: 'approved' }),
   });
-  if (res.ok || res.status === 500) {
-    return res.json() as Promise<RemediationResult>;
-  }
+  if (res.status === 202) return;
   const text = await res.text().catch(() => res.statusText);
   throw new Error(`API error ${res.status}: ${text}`);
 }
@@ -111,6 +109,24 @@ export async function getAuditEntries(): Promise<AuditEntry[]> {
     )
   );
   return batches.flat();
+}
+
+// ---- LLM interaction log ----
+
+export async function getLLMInteraction(incidentId: string): Promise<LLMInteraction | null> {
+  try {
+    return await apiFetch<LLMInteraction>(`${EVENT_STORE}/llm-log/${incidentId}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function getLLMInteractions(): Promise<LLMInteraction[]> {
+  try {
+    return await apiFetch<LLMInteraction[]>(`${EVENT_STORE}/llm-log`);
+  } catch {
+    return [];
+  }
 }
 
 // ---- KPI ----

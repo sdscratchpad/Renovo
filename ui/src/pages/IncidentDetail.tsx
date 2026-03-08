@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import {
   LuArrowLeft, LuBrainCircuit, LuCircleCheck, LuLoader, LuShieldAlert,
 } from '../icons';
-import { getIncidents, getRCA, getRemediation, approveRemediation, triggerDiagnosis, getRemediationResult } from '../api/client';
+import { getIncidents, getRCA, getRemediation, approveRemediation, triggerDiagnosis, getRemediationResult, getIncidentStatus } from '../api/client';
 import { IncidentEvent, RCAPayload, RemediationRequest, RemediationResult } from '../api/types';
 import Spinner from '../components/Spinner';
 import ErrorBanner from '../components/ErrorBanner';
@@ -31,15 +31,17 @@ const IncidentDetail: React.FC = () => {
   const [diagnosisError, setDiagnosisError] = useState<string | null>(null);
   const [rcaTimedOut, setRcaTimedOut] = useState(false);
   const [executionResult, setExecutionResult] = useState<RemediationResult | null>(null);
+  const [pipelineStatus, setPipelineStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
-    Promise.all([getIncidents(), getRCA(id), getRemediation(id), getRemediationResult(id)])
-      .then(([incidents, r, rem, execResult]) => {
+    Promise.all([getIncidents(), getRCA(id), getRemediation(id), getRemediationResult(id), getIncidentStatus(id)])
+      .then(([incidents, r, rem, execResult, statusUpdate]) => {
         setIncident(incidents.find(i => i.id === id) ?? null);
         setRca(r);
         setRemediation(rem);
         if (execResult) setExecutionResult(execResult);
+        if (statusUpdate) setPipelineStatus(statusUpdate.status);
         if (!r) setRcaTimedOut(false); // will poll
       })
       .catch(e => setLoadError(e instanceof Error ? e.message : 'Failed to load incident.'))
@@ -71,11 +73,17 @@ const IncidentDetail: React.FC = () => {
     return () => clearInterval(timer);
   }, [id, rca, loading, rcaTimedOut]);
 
-  // Poll for execution result while remediation is approved but result not yet loaded.
+  // Poll for execution result (and pipeline status) while remediation is approved but result not yet loaded.
+  // This covers both "remediating" and "verifying" states — we keep polling until
+  // the RemediationResult arrives, which only happens after verification completes.
   useEffect(() => {
     if (!id || executionResult || remediation?.approval !== 'approved' || loading) return;
     const timer = setInterval(async () => {
-      const result = await getRemediationResult(id).catch(() => null);
+      const [result, statusUpdate] = await Promise.all([
+        getRemediationResult(id).catch(() => null),
+        getIncidentStatus(id).catch(() => null),
+      ]);
+      if (statusUpdate) setPipelineStatus(statusUpdate.status);
       if (result) {
         setExecutionResult(result);
         clearInterval(timer);
@@ -104,12 +112,11 @@ const IncidentDetail: React.FC = () => {
     setApproving(true);
     setApproveError(null);
     try {
-      const result = await approveRemediation(remediation.action.id);
-      setExecutionResult(result);
+      await approveRemediation(remediation.action.id);
+      // Orchestrator accepted the request and is executing asynchronously.
+      // Mark approval locally so the "remediating" badge appears and the
+      // existing polling effect picks up the RemediationResult when done.
       setRemediation(prev => prev ? { ...prev, approval: 'approved', updated_at: new Date().toISOString() } : prev);
-      if (!result.success) {
-        setApproveError(`Runbook failed: ${result.message}`);
-      }
     } catch (e) {
       setApproveError('Failed to approve. Please try again.');
     } finally {
@@ -142,7 +149,7 @@ const IncidentDetail: React.FC = () => {
       <div className={styles.pageHeader}>
         <Link to="/" className={styles.backLink}><LuArrowLeft size={14}/> Dashboard</Link>
         <h1 className={styles.heading}>Incident <span className={styles.headingId}>{incident.id}</span></h1>
-        <StatusBadge status={deriveStatus(rca, remediation, executionResult)} />
+        <StatusBadge status={deriveStatus(rca, remediation, executionResult, pipelineStatus)} />
       </div>
 
       <section className={styles.sectionCard}>

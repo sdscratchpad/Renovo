@@ -109,6 +109,19 @@ type AuditEntry struct {
 	Timestamp  time.Time `json:"timestamp"`
 }
 
+// ---- LLM interaction log ----
+
+// LLMInteraction records the exact prompt sent to the model and its raw response
+// for every RCA invocation. Used by the AI Log page in the UI.
+type LLMInteraction struct {
+	IncidentID   string    `json:"incident_id"`
+	Model        string    `json:"model"`
+	SystemPrompt string    `json:"system_prompt"`
+	UserPrompt   string    `json:"user_prompt"`
+	RawResponse  string    `json:"raw_response"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
 // ---- Incident pipeline status ----
 
 // IncidentStatus represents the pipeline stage of an incident.
@@ -119,8 +132,13 @@ const (
 	StatusAnalyzing        IncidentStatus = "analyzing"
 	StatusAwaitingApproval IncidentStatus = "awaiting_approval"
 	StatusRemediating      IncidentStatus = "remediating"
-	StatusResolved         IncidentStatus = "resolved"
-	StatusFailed           IncidentStatus = "failed"
+	// StatusVerifying means the runbook API call succeeded and we are now
+	// polling Kubernetes to confirm that pods are healthy. The incident is
+	// still active — the detector must not fire a new incident for this service
+	// while it is in this state.
+	StatusVerifying IncidentStatus = "verifying"
+	StatusResolved  IncidentStatus = "resolved"
+	StatusFailed    IncidentStatus = "failed"
 )
 
 // IncidentStatusUpdate records the current pipeline stage of an incident.

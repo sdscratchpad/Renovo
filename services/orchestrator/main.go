@@ -5,6 +5,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -196,7 +197,9 @@ func main() {
 			return
 		}
 
-		// If approved, execute the runbook now.
+		// If approved, execute the runbook asynchronously so the caller gets a
+		// "remediating" response immediately. The UI polls /remediation-results
+		// to pick up the outcome once the runbook finishes.
 		if approveReq.Approval == contracts.ApprovalApproved {
 			if err := internal.CheckPolicy(remReq.Action, contracts.ApprovalApproved); err != nil {
 				jsonError(w, err.Error(), http.StatusForbidden)
@@ -207,25 +210,47 @@ func main() {
 				Status:     contracts.StatusRemediating,
 				UpdatedAt:  time.Now().UTC(),
 			})
-			result := exec.Execute(r.Context(), remReq.Action)
-			go persistKPI(eventStoreURL, result)
-			go postToEventStore(eventStoreURL+"/remediation-results", result)
-			approvalFinalStatus := contracts.StatusFailed
-			if result.Success {
-				approvalFinalStatus = contracts.StatusResolved
-			}
-			go postToEventStore(eventStoreURL+"/status", contracts.IncidentStatusUpdate{
-				IncidentID: result.IncidentID,
-				Status:     approvalFinalStatus,
-				UpdatedAt:  time.Now().UTC(),
-			})
+			go func(action contracts.RemediationAction) {
+				result := exec.Execute(context.Background(), action)
+				if result.Success {
+					// Runbook API call succeeded. Pods are provisioning.
+					// Enter "verifying" state and wait for Kubernetes to confirm
+					// the service is actually healthy before declaring resolved.
+					postToEventStore(eventStoreURL+"/status", contracts.IncidentStatusUpdate{
+						IncidentID: action.IncidentID,
+						Status:     contracts.StatusVerifying,
+						UpdatedAt:  time.Now().UTC(),
+					})
+					healthy, reason := internal.WaitUntilHealthy(kubeClient, action.RunbookName, action.Params)
+					recoveredAt := time.Now().UTC()
+					result.RecoveredAt = &recoveredAt
+					if !healthy {
+						result.Success = false
+						result.Message = "runbook executed but verification timed out: " + reason
+						log.Printf("orchestrator: verification failed for incident %s: %s", action.IncidentID, reason)
+					} else {
+						result.Message = fmt.Sprintf("runbook %s completed and service verified healthy", action.RunbookName)
+						log.Printf("orchestrator: incident %s verified healthy", action.IncidentID)
+					}
+				}
+				persistKPI(eventStoreURL, result)
+				postToEventStore(eventStoreURL+"/remediation-results", result)
+				finalStatus := contracts.StatusFailed
+				if result.Success {
+					finalStatus = contracts.StatusResolved
+				}
+				postToEventStore(eventStoreURL+"/status", contracts.IncidentStatusUpdate{
+					IncidentID: result.IncidentID,
+					Status:     finalStatus,
+					UpdatedAt:  time.Now().UTC(),
+				})
+			}(remReq.Action)
 			w.Header().Set("Content-Type", "application/json")
-			if result.Success {
-				w.WriteHeader(http.StatusOK)
-			} else {
-				w.WriteHeader(http.StatusInternalServerError)
-			}
-			json.NewEncoder(w).Encode(result)
+			w.WriteHeader(http.StatusAccepted)
+			json.NewEncoder(w).Encode(map[string]string{
+				"status":      "remediating",
+				"incident_id": remReq.Action.IncidentID,
+			})
 			return
 		}
 

@@ -25,6 +25,16 @@ Available runbooks and their required params:
 - restart-pods:        {"namespace": "<ns>", "selector": "<label=value>"}
 - retry-batch-job:     {"namespace": "<ns>", "deployment": "<name>"}
 
+Common scenario-to-runbook mappings (use as guidance):
+- bad-rollout / CreateContainerConfigError / ImagePullBackOff → rollback-deployment
+- CrashLoopBackOff / pod-restart-loop → rollback-deployment or restart-pods
+- OOMKilled / resource-saturation / unschedulable → scale-deployment (add replicas or nodes)
+- error-rate-spike / service-degraded → restart-pods (selector: app=<service>)
+- high-latency / traffic spike → scale-deployment
+- scale-to-zero (evidence shows desired_replicas=0, spec.replicas=0) → scale-deployment with replicas="2"; NEVER use rollback-deployment here because rollback only reverts the pod template and will NOT restore the replica count
+- service-unavailable (desired_replicas>0 but no pods available, or health check unreachable) → rollback-deployment
+- batch-timeout → retry-batch-job
+
 Schema: {"summary": "string", "root_cause": "string", "confidence": 0.0-1.0, "action": {"runbook": "string", "description": "string", "params": {"key": "value"}, "risk": "low|medium|high"}}`
 
 // Analyzer fetches evidence and calls GPT-4o to produce an RCA + remediation recommendation.
@@ -81,6 +91,16 @@ func (a *Analyzer) Analyze(ctx context.Context, inc contracts.IncidentEvent) (co
 	if err != nil {
 		return contracts.RCAPayload{}, contracts.RemediationAction{}, fmt.Errorf("analyzer: llm: %w", err)
 	}
+
+	// Persist the raw LLM interaction for the AI Log before parsing.
+	go a.persistLLMInteraction(ctx, contracts.LLMInteraction{
+		IncidentID:   inc.ID,
+		Model:        "gpt-4o",
+		SystemPrompt: systemPrompt,
+		UserPrompt:   userMsg,
+		RawResponse:  raw,
+		CreatedAt:    time.Now().UTC(),
+	})
 
 	// Strip markdown fences if the model wraps the JSON.
 	raw = strings.TrimSpace(raw)
@@ -228,6 +248,16 @@ func (a *Analyzer) persistRCA(ctx context.Context, rca contracts.RCAPayload) {
 	}
 	if err := a.postJSON(ctx, a.EventStoreURL+"/rca", rca); err != nil {
 		log.Printf("analyzer: persist rca: %v", err)
+	}
+}
+
+// persistLLMInteraction posts the raw LLM prompt+response to event-store for the AI Log.
+func (a *Analyzer) persistLLMInteraction(ctx context.Context, rec contracts.LLMInteraction) {
+	if a.EventStoreURL == "" {
+		return
+	}
+	if err := a.postJSON(ctx, a.EventStoreURL+"/llm-log", rec); err != nil {
+		log.Printf("analyzer: persist llm-log: %v", err)
 	}
 }
 

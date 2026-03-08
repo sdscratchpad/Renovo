@@ -38,35 +38,70 @@
   line-height: 1.1;
 }
 
-.links {
+/* ---- WebSocket status indicator ---- */
+.wsIndicator {
   display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  gap: 4px;
-}
-
-.link,
-.activeLink {
-  display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
+  gap: 6px;
+  padding: 5px 10px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 500;
-  text-decoration: none;
-  transition: background-color var(--transition), color var(--transition), box-shadow var(--transition);
-  color: #9aa5ce;
+  letter-spacing: 0.2px;
+  border: 1px solid transparent;
+  user-select: none;
 }
 
-.link:hover {
-  background-color: #1a1c2e;
-  color: #c0caf5;
+.wsDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.activeLink {
-  background-color: rgba(122,162,247,0.1);
-  color: #7aa2f7;
-  box-shadow: inset 0 -2px 0 #7aa2f7;
+.wsLabel {
+  color: inherit;
+}
+
+/* connected — green */
+.ws_connected {
+  color: #9ece6a;
+  background: rgba(158, 206, 106, 0.08);
+  border-color: rgba(158, 206, 106, 0.2);
+}
+.ws_connected .wsDot {
+  background: #9ece6a;
+  box-shadow: 0 0 5px #9ece6a;
+  animation: wsPulse 2s ease-in-out infinite;
+}
+
+/* connecting — yellow */
+.ws_connecting {
+  color: #e0af68;
+  background: rgba(224, 175, 104, 0.08);
+  border-color: rgba(224, 175, 104, 0.2);
+}
+.ws_connecting .wsDot {
+  background: #e0af68;
+  animation: wsSpinFade 1s linear infinite;
+}
+
+/* disconnected — red */
+.ws_disconnected {
+  color: #f7768e;
+  background: rgba(247, 118, 142, 0.08);
+  border-color: rgba(247, 118, 142, 0.2);
+}
+.ws_disconnected .wsDot {
+  background: #f7768e;
+}
+
+@keyframes wsPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes wsSpinFade {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
 }

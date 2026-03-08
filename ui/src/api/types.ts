@@ -96,3 +96,12 @@ export interface KPISummary {
   resolved_today: number;
   auto_resolve_rate: number; // percentage 0-100
 }
+
+export interface LLMInteraction {
+  incident_id: string;
+  model: string;
+  system_prompt: string;
+  user_prompt: string;
+  raw_response: string;
+  created_at: string; // ISO 8601
+}
