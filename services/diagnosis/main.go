@@ -165,8 +165,14 @@ func processUnanalyzed(eventStoreURL string, analyzer *diaginternal.Analyzer, in
 		var su contracts.IncidentStatusUpdate
 		decodeErr := json.NewDecoder(statResp.Body).Decode(&su)
 		statResp.Body.Close()
-		if decodeErr != nil || su.Status != contracts.StatusDetected {
-			// Has a real pipeline status beyond "detected" — skip.
+		if decodeErr != nil {
+			continue
+		}
+		// Process if: never touched ("detected"), OR stuck in "analyzing" for >2 min
+		// (service restart mid-analysis leaves incidents permanently orphaned otherwise).
+		stuckAnalyzing := su.Status == contracts.StatusAnalyzing &&
+			time.Since(su.UpdatedAt) > 2*time.Minute
+		if su.Status != contracts.StatusDetected && !stuckAnalyzing {
 			continue
 		}
 
